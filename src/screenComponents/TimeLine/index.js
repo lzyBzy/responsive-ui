@@ -11,11 +11,14 @@ type Props = {
 type State = {
   activeNode: number,
   timeLineData: Array<{time: string, data: string}>,
+  gotData: boolean,
 };
 
 class TimeLine extends React.Component<Props, State> {
   state = {
+    activeNode: 0,
     timeLineData: [],
+    gotData: false,
   };
 
   getTheTimeLineData = () => {
@@ -24,9 +27,13 @@ class TimeLine extends React.Component<Props, State> {
         console.log(timeLine.response.data);
         this.setState({
           timeLineData: timeLine.response.data,
+          gotData: true,
         });
       } else {
-        timeLineData: []
+        this.setState({
+          timeLineData: [],
+          gotData: true,
+        });
       }
     })
   }
@@ -44,26 +51,29 @@ class TimeLine extends React.Component<Props, State> {
 
 
   render() {
-    const { activeNode, timeLineData } = this.state;
+    const { activeNode, timeLineData, gotData } = this.state;
     console.log("rewr"+JSON.stringify(timeLineData));
 
     return (
       <div className="timeLineDiv">
         <div className="timeLine">
-          {
-            timeLineData !== undefined && timeLineData !== null && timeLineData.length !== 0
+          { gotData
+            ? (timeLineData !== undefined && timeLineData !== null && timeLineData.length !== 0
               ? (
                 timeLineData.map((timeData, index) => {
                  return(
                    <div key={index} className="eachTimeLine">
                      <TimeNode date={timeData.time} data={timeData.data} id={index} active={index === activeNode} onHoveringNode={this.onHoveringNode} />
                      { timeLineData[index+1] !== undefined
-                        ? <TimeNodeConnector howManyDate={timeLineData.length} /> : null
+                        ?
+                        (<div className="connectorBlock">
+                          <TimeNodeConnector howManyDate={timeLineData.length} />
+                        </div>) : null
                      }
                    </div>
                  );
                 })
-              ) : <span>sdd</span>
+              ) : <span> No Timeline Present ....</span> ) : <span> Loading.... </span>
           }
         </div>
       </div>
